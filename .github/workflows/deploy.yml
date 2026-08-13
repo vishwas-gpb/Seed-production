@@ -24,13 +24,9 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          packages: |
-            any::shinylive
-            any::shiny
-            any::bslib
-            any::DT
+      - name: Install R packages
+        shell: Rscript {0}
+        run: install.packages(c("shinylive", "shiny", "bslib", "DT"))
 
       - name: Export shinylive app
         shell: Rscript {0}
@@ -38,7 +34,7 @@ jobs:
 
       - name: Inject PWA (manifest + service worker)
         shell: Rscript {0}
-        run: source("pwa/inject.R")
+        run: if (file.exists("pwa/inject.R")) source("pwa/inject.R")
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -55,4 +51,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
