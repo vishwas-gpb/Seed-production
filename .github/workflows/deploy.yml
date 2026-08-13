@@ -36,6 +36,13 @@ jobs:
         shell: Rscript {0}
         run: if (file.exists("pwa/inject.R")) source("pwa/inject.R")
 
+      - name: Debug - list built files
+        run: |
+          echo "==== _site tree ===="
+          find _site -maxdepth 2 | sort
+          test -f _site/index.html && echo "RESULT: index.html IS at _site root" || echo "RESULT: index.html MISSING at _site root"
+          find _site -maxdepth 2 | sort > _site/debug.txt
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
