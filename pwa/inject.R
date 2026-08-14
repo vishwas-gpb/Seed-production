@@ -1,9 +1,9 @@
 args <- commandArgs(trailingOnly = TRUE)
 site <- if (length(args) >= 1) args[[1]] else "_site"
 
-# copy PWA assets into the exported site
+# manifest + icons only. Service worker intentionally NOT registered, and any
+# previously-registered one is removed. Stable online build.
 file.copy("pwa/manifest.json", file.path(site, "manifest.json"), overwrite = TRUE)
-file.copy("pwa/sw.js",          file.path(site, "sw.js"),         overwrite = TRUE)
 for (ic in c("icon-192.png", "icon-512.png")) {
   p <- file.path("pwa", ic)
   if (file.exists(p)) file.copy(p, file.path(site, ic), overwrite = TRUE)
@@ -17,9 +17,8 @@ inject <- paste0(
   '<meta name="theme-color" content="#2e7d32">',
   '<link rel="apple-touch-icon" href="icon-192.png">',
   '<script>if("serviceWorker" in navigator){',
-  'window.addEventListener("load",function(){',
-  'navigator.serviceWorker.register("sw.js").catch(function(e){console.log(e);});',
-  '});}</script>'
+  'navigator.serviceWorker.getRegistrations().then(function(rs){',
+  'rs.forEach(function(r){r.unregister();});});}</script>'
 )
 
 if (any(grepl("</head>", html, fixed = TRUE))) {
@@ -28,4 +27,4 @@ if (any(grepl("</head>", html, fixed = TRUE))) {
   html <- c(inject, html)
 }
 writeLines(html, index)
-cat("PWA (manifest + network-first SW) injected into", index, "\n")
+cat("Stable online build (no service worker) injected into", index, "\n")
