@@ -1,18 +1,17 @@
-// Service worker for offline use.
-// Strategy: cache-first with runtime caching. On the first ONLINE visit every
-// same-origin asset (index.html + the webR / shinylive WebAssembly bundle) is
-// fetched and cached; afterwards the app opens with no connection.
+// Offline service worker for the shinylive PWA — NETWORK-FIRST.
+// Online: behaves like no service worker (always goes to the network), so it
+// can never serve a stale page or break the live app. Every successful (200)
+// same-origin response is copied into the cache as it loads. Offline: served
+// from that cache, with index.html as the navigation fallback.
 //
-// NOTE: this is cache-first, so when you ship an update you must bump CACHE
-// (e.g. seed-log-v2) to force clients to refetch.
+// Bump CACHE (v3 -> v4 ...) whenever you ship an update, to force a refresh.
 
-const CACHE = "seed-log-v1";
-const CORE  = ["./", "./index.html", "./manifest.json"];
+const CACHE = "seed-log-v3";
+const SHELL = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL).catch(() => {})));
 });
 
 self.addEventListener("activate", (event) => {
@@ -27,20 +26,21 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return; // only cache our own assets
+  if (url.origin !== self.location.origin) return;
 
   event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req)
-        .then((res) => {
-          if (res && res.status === 200 && res.type === "basic") {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => cached); // offline and not in cache
-    })
+    fetch(req)
+      .then((res) => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() =>
+        caches.match(req).then(
+          (r) => r || (req.mode === "navigate" ? caches.match("./index.html") : Response.error())
+        )
+      )
   );
 });
