@@ -98,8 +98,8 @@ ui <- page_navbar(
 
   nav_panel(
     "Log entry",
-    layout_columns(
-      col_widths = c(rep(6, 14), 12, 4, 4, 4),
+    layout_column_wrap(
+      width = "240px",
       textInput("lot_id", "Lot ID *", placeholder = "e.g. PDY-MTU1010-K26-001"),
       selectInput("crop", "Crop *", choices = CROPS),
       textInput("variety", "Variety *", placeholder = "e.g. MTU-1010"),
@@ -116,12 +116,13 @@ ui <- page_navbar(
       textInput("village", "Village"),
       numericInput("lat", "GPS latitude", value = NA, step = 0.00001),
       numericInput("lon", "GPS longitude", value = NA, step = 0.00001),
-      actionButton("get_gps", "Use device GPS",
-                   class = "btn-outline-secondary", icon = icon("location-crosshairs")),
       dateInput("sowing_date", "Sowing date"),
       textInput("grower", "Grower name"),
       textInput("grower_ref", "Grower reg / KYC ref")
     ),
+    div(class = "mt-2",
+        actionButton("get_gps", "Use device GPS", class = "btn-outline-secondary btn-sm",
+                     icon = icon("location-crosshairs"))),
     textAreaInput("notes", "Notes", rows = 2, width = "100%"),
     div(class = "d-flex gap-2 mt-2",
         actionButton("save", "Save record", class = "btn-primary"),
