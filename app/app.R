@@ -98,29 +98,44 @@ ui <- page_navbar(
 
   nav_panel(
     "Log entry",
-    layout_column_wrap(
-      width = "240px",
-      textInput("lot_id", "Lot ID *", placeholder = "e.g. PDY-MTU1010-K26-001"),
-      selectInput("crop", "Crop *", choices = CROPS),
-      textInput("variety", "Variety *", placeholder = "e.g. MTU-1010"),
-      selectInput("seed_class", "Seed class *", choices = CLASSES),
-      selectInput("season", "Season *", choices = SEASONS),
-      numericInput("year", "Year *",
-                   value = as.integer(format(Sys.Date(), "%Y")),
-                   min = 2020, max = 2100, step = 1),
-      textInput("source_lot", "Source seed lot no."),
-      selectInput("source_class", "Source seed class", choices = c("", CLASSES)),
-      numericInput("area_ha", "Area (ha) *", value = NA, min = 0, step = 0.1),
-      textInput("district", "District"),
-      textInput("block", "Block"),
-      textInput("village", "Village"),
-      numericInput("lat", "GPS latitude", value = NA, step = 0.00001),
-      numericInput("lon", "GPS longitude", value = NA, step = 0.00001),
-      dateInput("sowing_date", "Sowing date"),
-      textInput("grower", "Grower name"),
-      textInput("grower_ref", "Grower reg / KYC ref")
+    fluidRow(
+      column(6, textInput("lot_id", "Lot ID *", placeholder = "e.g. PDY-MTU1010-K26-001")),
+      column(6, selectInput("crop", "Crop *", choices = CROPS))
     ),
-    div(class = "mt-2",
+    fluidRow(
+      column(6, textInput("variety", "Variety *", placeholder = "e.g. MTU-1010")),
+      column(6, selectInput("seed_class", "Seed class *", choices = CLASSES))
+    ),
+    fluidRow(
+      column(6, selectInput("season", "Season *", choices = SEASONS)),
+      column(6, numericInput("year", "Year *",
+                             value = as.integer(format(Sys.Date(), "%Y")),
+                             min = 2020, max = 2100, step = 1))
+    ),
+    fluidRow(
+      column(6, textInput("source_lot", "Source seed lot no.")),
+      column(6, selectInput("source_class", "Source seed class", choices = c("", CLASSES)))
+    ),
+    fluidRow(
+      column(6, numericInput("area_ha", "Area (ha) *", value = NA, min = 0, step = 0.1)),
+      column(6, textInput("district", "District"))
+    ),
+    fluidRow(
+      column(6, textInput("block", "Block")),
+      column(6, textInput("village", "Village"))
+    ),
+    fluidRow(
+      column(6, numericInput("lat", "GPS latitude", value = NA, step = 0.00001)),
+      column(6, numericInput("lon", "GPS longitude", value = NA, step = 0.00001))
+    ),
+    fluidRow(
+      column(6, dateInput("sowing_date", "Sowing date")),
+      column(6, textInput("grower", "Grower name"))
+    ),
+    fluidRow(
+      column(6, textInput("grower_ref", "Grower reg / KYC ref"))
+    ),
+    div(class = "mb-3",
         actionButton("get_gps", "Use device GPS", class = "btn-outline-secondary btn-sm",
                      icon = icon("location-crosshairs"))),
     textAreaInput("notes", "Notes", rows = 2, width = "100%"),
